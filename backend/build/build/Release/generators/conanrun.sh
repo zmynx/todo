@@ -1,0 +1,1 @@
+. "/Users/lior.dux/Desktop/Projects/zmynx/todo/backend/build/build/Release/generators/conanrunenv-release-armv8.sh"

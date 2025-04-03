@@ -1,8 +1,27 @@
 # // Dockerfile.backend
-FROM conanio/gcc12
+FROM ubuntu:22.04
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+	build-essential \
+	cmake \
+	python3-pip \
+	git \
+	curl \
+	&& pip3 install conan
+
+# Set up Conan profile
+RUN conan profile detect --force
+
 WORKDIR /app
 COPY . .
-RUN conan install backend --build=missing && \
-	cmake -S backend -B build && \
-	cmake --build build
-CMD ["./build/backend"]
+
+# Install Conan deps and build the app
+RUN conan remote list && \
+	conan remote update --insecure conancenter && \
+	conan install backend -s build_type=Release --build=missing -of=build/Release && \
+	cmake -S backend -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -B build/Release && \
+	cmake --build build/Release
+
+WORKDIR /app/build/Release
+CMD ["./todo_backend"]

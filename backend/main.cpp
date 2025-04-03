@@ -1,11 +1,14 @@
 // backend/main.cpp
-#include "task_manager.hpp"
+#include "include/task_manager.hpp"
 #include <crow.h>
 
 int main() {
     crow::SimpleApp app;
     TaskManager taskManager;
-
+    // ✅ This sets up the root route
+    CROW_ROUTE(app, "/")([](){
+        return "Hello from Crow!";
+    });
     CROW_ROUTE(app, "/tasks").methods("GET"_method)([&]() {
         return crow::response(taskManager.getTasksJSON());
     });

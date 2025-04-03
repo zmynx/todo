@@ -1,0 +1,3 @@
+/Users/lior.dux/Desktop/Projects/zmynx/todo/backend/build/CMakeFiles/todo_backend.dir
+/Users/lior.dux/Desktop/Projects/zmynx/todo/backend/build/CMakeFiles/edit_cache.dir
+/Users/lior.dux/Desktop/Projects/zmynx/todo/backend/build/CMakeFiles/rebuild_cache.dir

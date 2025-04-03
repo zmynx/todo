@@ -19,4 +19,3 @@ class BackendRecipe(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-

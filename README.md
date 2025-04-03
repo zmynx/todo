@@ -4,101 +4,137 @@ Todo application written in cpp, using AI agents as much as possible.
 
 // README.md
 
-# C++ Todo App with Frontend & Database
+# C++ Todo App with Frontend and Docker Support
 
-## Project Structure
+This is a full-stack todo application built with a C++ backend using the Crow framework, a React-based frontend, and orchestrated with Docker Compose.
 
-- `backend/`: C++ backend using Crow for REST API
-- `frontend/`: Frontend built with React or HTML/JS
-- `database/`: Postgres DB schema
-- `docker-compose.yml`: Orchestrates entire app
-- `Dockerfile.backend`: Builds backend service
-- `Dockerfile.frontend`: Builds frontend service
+---
 
-## Setup Instructions
+## 🧩 Project Structure
 
-1. Clone this repo:
-
-```bash
-git clone https://github.com/your-repo/todo-cpp-app.git
-cd todo-cpp-app
+```
+project-root/
+├── backend/               # C++ backend server with Crow
+├── frontend/              # React frontend client
+├── database/              # SQL initialization script (optional)
+├── docker-compose.yml     # Service orchestration
+├── Dockerfile.backend     # Backend container
+├── Dockerfile.frontend    # Frontend container
+├── .conan/                # Conan config
+├── README.md              # This file
 ```
 
-2. Start the stack:
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Node.js (for local frontend testing)
+- Conan (v2.x preferred): `pip install conan`
+
+---
+
+## 🐳 Running with Docker Compose
 
 ```bash
 docker-compose up --build
 ```
 
-3. App endpoints:
-
 - Frontend: http://localhost:3000
-- API: http://localhost:18080/tasks
+- Backend API: http://localhost:18080/tasks
 
-## Conan Dependency Management
+---
 
-This project uses [Conan](https://conan.io/) to manage dependencies such as `crow` and `nlohmann_json`.
+## ⚙️ Building Locally
 
-### Installing Conan
-
-```bash
-pip install conan
-```
-
-### Creating conanfile.txt in backend/
-
-```
-[requires]
-crowcpp-crow/1.0
-nlohmann_json/3.11.2
-
-[generators]
-cmake
-```
-
-### Install dependencies locally
+### Backend (C++)
 
 ```bash
 cd backend
-conan install . --build=missing
+conan profile detect --force
+conan install . -s build_type=Release --build=missing -of=build/Release
+cd build/Release
+cmake ../.. -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+./todo_backend
 ```
 
-This will generate files needed for CMake to find the libraries.
-
-## Development Workflow
-
-- Make C++ changes in `backend/src` and `backend/include`
-- Rebuild backend with:
+### Frontend (React)
 
 ```bash
-docker-compose up --build backend
+cd frontend
+npm install
+npm start
 ```
 
-- Use REST endpoints to add (`POST`), edit (`PUT`), delete (`DELETE`) tasks
+---
 
-## Onboarding for New Contributors
+## 🛠 Dockerfile Notes
 
-1. Install Docker, Conan, and Node.js
+The backend Dockerfile uses `ubuntu:22.04`, installs required build tools and Conan, then performs the same Conan + CMake steps as local.
 
-2. Clone the repo & build stack:
-
-```bash
-git clone <repo>
-docker-compose up --build
+```Dockerfile
+conan install backend -s build_type=Release --build=missing -of=build/Release
+cmake -S backend -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -B build/Release
+cmake --build build/Release
 ```
 
-3. For backend:
+---
 
-- Modify `main.cpp`, `task_manager.cpp`, or headers
-- Run `conan install` before building
-- Build with CMake or via Docker
+## 📦 Conan Requirements
 
-4. For frontend:
+### `backend/conanfile.py`
 
-- Develop in `frontend/`
-- Run `npm start` for live dev
+```python
+from conan import ConanFile
 
-5. Contribute:
+class TodoBackend(ConanFile):
+    name = "todo-backend"
+    version = "1.0"
+    requires = (
+        "crowcpp-crow/1.2.0",
+        "nlohmann_json/3.11.2",
+        "asio/1.29.0"
+    )
+    generators = "CMakeToolchain", "CMakeDeps"
+```
 
-- Fork, branch, commit with clear messages
-- PRs are welcome with tests or examples if possible
+---
+
+## 🧪 API Usage
+
+- `GET /tasks` — list tasks
+- `POST /tasks` — add new task (JSON: `{ title, description }`)
+- `PUT /tasks/:id` — update task
+- `DELETE /tasks/:id` — delete task
+
+---
+
+## 🎨 Frontend Highlights
+
+- React UI with retro gaming look
+- Add/edit/delete task functionality
+- Axios used for HTTP requests
+- Built for portability inside Docker
+
+---
+
+## 🙌 Contributing
+
+1. Fork the repo
+2. Create a new branch
+3. Submit a PR with meaningful commit messages
+
+---
+
+## 🧰 Troubleshooting
+
+- **Docker `pull access denied`**: The old `conanio/gcc12` image is deprecated. We now use `ubuntu:22.04`.
+- **Frontend error `tasks is null`**: Fixed via defensive checks and default to empty array.
+- **SSL issues with Conan**: Use `conan remote update --insecure conancenter`.
+
+---
+
+Let me know if you want to deploy this to a free hosting provider like Railway or Fly.io!
