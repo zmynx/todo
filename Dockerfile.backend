@@ -1,0 +1,8 @@
+# // Dockerfile.backend
+FROM conanio/gcc12
+WORKDIR /app
+COPY . .
+RUN conan install backend --build=missing && \
+	cmake -S backend -B build && \
+	cmake --build build
+CMD ["./build/backend"]
